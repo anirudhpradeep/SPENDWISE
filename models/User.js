@@ -1,21 +1,32 @@
 const mongoose = require('mongoose');
 
-const IncomeHistorySchema = new mongoose.Schema(
-  {
-    amount: { type: Number, required: true },
-    date: { type: Date, required: true },
+// IncomeEntrySchema for income history entries
+const IncomeEntrySchema = new mongoose.Schema({
+  amount: { type: Number, required: true },
+  date: { type: Date, required: true }
+}, { _id: false });
+
+// UserSchema with userId, name, and incomeHistory
+const UserSchema = new mongoose.Schema({
+  userId: { 
+    type: String, 
+    required: true, 
+    unique: true, 
+    index: true 
   },
-  { _id: false }
-);
-
-const UserSchema = new mongoose.Schema(
-  {
-    userId: { type: String, unique: true, required: true, index: true },
-    name: { type: String, required: true },
-    incomeHistory: { type: [IncomeHistorySchema], default: [] },
+  name: { 
+    type: String, 
+    required: false 
   },
-  { timestamps: true }
-);
+  incomeHistory: { 
+    type: [IncomeEntrySchema], 
+    default: [] 
+  }
+}, { timestamps: true });
 
-module.exports = mongoose.model('User', UserSchema);
-
+// Safe export: return existing model if it already exists
+if (mongoose.models.User) {
+  module.exports = mongoose.models.User;
+} else {
+  module.exports = mongoose.model('User', UserSchema);
+}
