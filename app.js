@@ -1,3 +1,4 @@
+// backend/app.js
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -8,6 +9,10 @@ dotenv.config();
 const expenseRoutes = require('./routes/expenses');
 const insightRoutes = require('./routes/insights');
 const aiRoutes = require('./routes/ai');
+
+// add cron starter
+// ensure this file exists: ./services/agentCron.js (we prepared it earlier)
+const { startAgentCron } = require('./services/agentCron');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -24,12 +29,23 @@ app.get('/', (req, res) => {
   res.json({ status: 'ok', message: 'SpendWise backend up' });
 });
 
+let server = null;
+
 mongoose
   .connect(MONGO_URI)
   .then(() => {
     console.log('[backend] MongoDB connected');
-    app.listen(PORT, () => {
+    server = app.listen(PORT, () => {
       console.log(`[backend] Server listening on port ${PORT}`);
+
+      // Start cron AFTER server is listening. For demo set runOnInit: true
+      // Change to runOnInit: false for normal background runs.
+      try {
+        startAgentCron({ runOnInit: true });
+        console.log('[app] Agent cron started (runOnInit: true for demo)');
+      } catch (err) {
+        console.error('[app] Failed to start agent cron:', err);
+      }
     });
   })
   .catch((error) => {
@@ -37,5 +53,19 @@ mongoose
     process.exit(1);
   });
 
-module.exports = app;
+// graceful shutdown
+function shutdown(signal) {
+  console.log(`[app] Received ${signal}. Shutting down server...`);
+  if (server) server.close(() => {
+    console.log('[app] HTTP server closed');
+    mongoose.connection.close(false, () => {
+      console.log('[app] Mongo connection closed');
+      process.exit(0);
+    });
+  });
+}
 
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+module.exports = app;
