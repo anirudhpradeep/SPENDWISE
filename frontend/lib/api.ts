@@ -40,3 +40,27 @@ export async function generateAIInsight(userId: string) {
     method: 'POST',
   });
 }
+
+export async function getGoals(userId: string) {
+  return fetchAPI(`/api/goals?userId=${userId}`);
+}
+
+export async function createGoal(payload: any) {
+  return fetchAPI('/api/goals', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateGoal(id: string, payload: any) {
+  return fetchAPI(`/api/goals/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteGoal(id: string) {
+  return fetchAPI(`/api/goals/${id}`, {
+    method: 'DELETE',
+  });
+}

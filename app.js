@@ -8,6 +8,7 @@ dotenv.config();
 const expenseRoutes = require('./routes/expenses');
 const insightRoutes = require('./routes/insights');
 const aiRoutes = require('./routes/ai');
+const goalRoutes = require('./routes/goals');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/insights', insightRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/goals', goalRoutes);
 
 app.get('/', (req, res) => {
   res.json({ status: 'ok', message: 'SpendWise backend up' });
