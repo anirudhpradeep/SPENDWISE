@@ -214,7 +214,8 @@ http://localhost:3000
 ## Authors
 
 - **Anirudh Pradeep**
-- Team SpendWise
+- **Nitish H R**
+- **Prince Kunal**
 
 ---
 
